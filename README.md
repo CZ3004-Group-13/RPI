@@ -1,4 +1,8 @@
 # RPI Multithreading - will be done on RPI
+```
+sudo apt install python3-opencv
+sudo pip3 install imagezmq
+```
 
 Step 1: go to terminal and run cd ~/Desktop/RPi  
 Step 2: for image rec configuration - go to config file and include your name & ip address. e.g. 'keith': BASE_IP + ''yr_ip_address_no' + PORT  
