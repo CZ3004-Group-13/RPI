@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import multiprocessing
 import os
 import argparse
 
-from multithreading import Multithreading
+from multithreading1 import Multithreading
 from config import IMAGE_PROCESS_SERVER_URLS
 
 parser = argparse.ArgumentParser(description='Main Program for MDP')

@@ -83,18 +83,18 @@ class ImageClient:
             pass
 
 
-if __name__ == '__main__':
-    ImageClient = ImageClient()
-    try:
-        counter = 6
-        while True:
-            if counter == 0:
-                ImageClient.write("s") # signal to stop  
-            ImageClient.write("t") # signal to take picture
-            print(ImageClient.read())
-            time.sleep(5)
-            print("TRYING TO WRITE")
-            counter -= 1
-            #ImageClient.write("")
-    except KeyboardInterrupt:
-        print("Terminating the program now...")
+# if __name__ == '__main__':
+#     ImageClient = ImageClient()
+#     try:
+#         counter = 6
+#         while True:
+#             if counter == 0:
+#                 ImageClient.write("s") # signal to stop  
+#             ImageClient.write("t") # signal to take picture
+#             print(ImageClient.read())
+#             time.sleep(5)
+#             print("TRYING TO WRITE")
+#             counter -= 1
+#             #ImageClient.write("")
+#     except KeyboardInterrupt:
+#         print("Terminating the program now...")
