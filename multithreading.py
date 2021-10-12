@@ -459,24 +459,24 @@ class Multithreading:
                         
                         if payload == AlgorithmToRPi.TAKE_PICTURE:
 
-                            image = self.imageclient.read()
+                            #image = self.imageclient.read()
 
 
-                            # if self.image_count.value >=5:
-                            #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,RPiToAlgorithm.DONE_IMG_REC+ NEWLINE)) #remove newline
+                            if self.image_count.value >=5:
+                                self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,RPiToAlgorithm.DONE_IMG_REC+ NEWLINE)) #remove newline
                             
-                            # else:
-                            #     payload = payload[2:-1]
-                            #     self.msg_to_android_queue.put_nowait(RPiToAndroid.STATUS_TAKING_PICTURE + NEWLINE) #change 300921
+                            else:
+                                payload = payload[2:-1]
+                                self.msg_to_android_queue.put_nowait(RPiToAndroid.STATUS_TAKING_PICTURE + NEWLINE) #change 300921
                                 
                                 
 
-                            #     #image = self._takepic() 
-                            #     print('Picture taken')
+                                image = self._takepic() 
+                                print('Picture taken')
                         
-                            #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, RPiToAlgorithm.DONE_TAKING_PICTURE+NEWLINE)) #remove newline
-                            #     self.image_queue.put_nowait([image,payload])
-                            #     print('image queued ')
+                                self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, RPiToAlgorithm.DONE_TAKING_PICTURE+NEWLINE)) #remove newline
+                                self.image_queue.put_nowait([image,payload])
+                                print('image queued ')
                         else:
                             self.stm.write(payload)
                             self.stmIsReady.value = 0

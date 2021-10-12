@@ -40,9 +40,12 @@ class AndroidToSTM:
 
 
 class AndroidToAlgorithm:
-    START_EXPLORATION = 'ES|'
-    START_FASTEST_PATH = 'FS|'
+    START_IMGREC = 'BANANAS'
+    START_FASTEST_PATH = 'LEMON'
     SEND_ARENA = 'SendArena'
+    DRAW_PATH = 'DRAW_PATH'
+    RESET = "RESET"
+
 
 
 class AndroidToRPi:
@@ -62,8 +65,9 @@ class AlgorithmToAndroid:
 
 
 class AlgorithmToRPi:
-    TAKE_PICTURE = 'R0.00'
-    EXPLORATION_COMPLETE = 'N'
+    TAKE_PICTURE = 'R'
+    EXPLORATION_COMPLETE = 'S'
+    
 
 
 class RPiToAndroid:
@@ -93,3 +97,4 @@ class RPiToSTM:
 class RPiToAlgorithm:
     DONE_TAKING_PICTURE = 'D'
     DONE_IMG_REC = 'I'
+    NOTHING_DETECTED = 'None'

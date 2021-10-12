@@ -113,7 +113,7 @@ class Android():
                 msg = self.read(timeout=None)
             
 
-            self.client_sock.send(msg)
+            self.client_sock.send(msg) #need encode? new android code got error 041021
             #self.btsock.send(msg)
             #if DEBUG:
              #   print("%s | Write to Android: %s" % (self.current_time(), msg))
@@ -158,15 +158,15 @@ class Android():
     
 
 
-"""if __name__ == '__main__':
+if __name__ == '__main__':
 
     android = Android()
     android.connect(UUID)
 
     try:
         while True:
-            android.read(timeout=1)
+            android.read()
             android.write(input("Socket WRITE: Opened.\nSend Message: "))
 
     except KeyboardInterrupt:
-        print("Terminating the program now...")    """
+        print("Terminating the program now...")    

@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import multiprocessing
 import os
 import argparse
 
-from multithreading import Multithreading
+from multithreading2 import Multithreading
 from config import IMAGE_PROCESS_SERVER_URLS
 
 parser = argparse.ArgumentParser(description='Main Program for MDP')
@@ -16,19 +15,20 @@ parser.add_argument(
 )
 
 def init():
-    args = parser.parse_args()
-    image_processing_server = args.image_recognition
+    #args = parser.parse_args()
+    #image_processing_server = args.image_recognition
 
 
     os.system('sudo hciconfig hci0 piscan')
 
     try:
         multiprocess_comm = Multithreading(
-            IMAGE_PROCESS_SERVER_URLS.get(image_processing_server)
+            #IMAGE_PROCESS_SERVER_URLS.get(image_processing_server)
         )
         multiprocess_comm.start()
-    except Exception:
-        multiprocess_comm.disconnect()
+    except Exception as e:
+        print('Exception is: %s' %str(e))
+        #multiprocess_comm.disconnect()
     
 if __name__ == '__main__':
     init()
