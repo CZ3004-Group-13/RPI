@@ -7,12 +7,13 @@ from typing import NewType
 
 from android import *
 from stm32 import *
-from algo import *
 from config import *
 from protocols import *
 from ultrasonic import *
 
+import statistics
 
+#Only used android, stm and ultrasonic
 
 
 class Multithreading:
@@ -165,123 +166,20 @@ class Multithreading:
         #Output in terminal
         print('Reconnected to Android')
 
-    # def _reconnect_algo(self):
-    #     self.algo.disconnect()
 
-    #     #terminate all processes
-    #     self.read_algo_process.terminate()
-    #     self.write_process.terminate()
-    #     self.write_android_process.terminate()
-
-    #     #reconnect algo
-    #     self.algo.connect()
-
-    #     #Recreate all processes
-    #     self.read_algo_process = Process(target=self._read_algo)
-    #     self.read_algo_process.start()
-
-    #     self.write_process = Process(target=self._write_target_)
-    #     self.write_process.start()
-
-    #     self.write_android_process = Process(target=self._write_android_)
-    #     self.write_android_process.start()
-
-    #     #Output in terminal
-    #     print('Reconnected to Algo')
-
-    def _read_imagerec(self):
-        while True:
-            try:
-                raw_msg = self.imagerec.read()
-                #[up, (73,104),55,115]
-                #print(raw_msg)
-
-                if raw_msg is None:
-                    continue
-                message_list = raw_msg.splitlines()
-
-                for msg in message_list:
-
-                    print('Msg from ImgRec: %s'%msg)
-
-                    if len(msg) <=0:
-                        continue
-
-                    
-
-                    #incomplete 041021 - implementing handling of IMGREC given msg
-
-
-                    #TBC 041021
-
-                    elif msg == 'Nothing detected...' or msg == 'Nothing detected!!!':
-                        print('msg has nothing: %s'%msg)
-                        self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,RPiToAlgorithm.NOTHING_DETECTED + NEWLINE)) #send out 'none'
-                    
-                    else:
-
-
-
-                        splitmsg = msg.split('|') #split into diff 
-
-                        print('splitted up msg is %s' %splitmsg)
-                        #if msg == 'taking photo': #not necessary as ImgRec side will send out the de
-                        #   time.sleep(10)
-                        #  self.message_queue.put_nowait(self._formatted_("IMG",'s'))
-                        #else:
-
-                        and_msg = 'TARGET|'+splitmsg[0] +'|' +splitmsg[1]  #TARGET | obs_id | img_id
-                        algo_msg = 'D'+splitmsg[0] +','+splitmsg[2] +','+splitmsg[3] #D obs_id | dist | position
-                        #splitmsg[1] #tbc
-                        #splitmsg[2] #tbc
-
-                        print('msg to android %s'%and_msg)
-                        print(type(and_msg))
-
-
-
-                        self.msg_to_android_queue.put_nowait(and_msg + NEWLINE)
-                        self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,algo_msg+NEWLINE ))
-                    
-
-
-
-                    # new_msg = msg[1:-1]
-                    # #up, (73,104),55,115
-
-                    # splitmsg = new_msg.split(",")
-                    # #[up, (73, 104), 55, 115]
-
-                    # msgid = splitmsg[0]
-
-                    # msgx = splitmsg[1] #check if image on left or right?
-                    # msgy = splitmsg[2]
-
-                    # #distance - use height - h>190
-
-                    # msgwidth = splitmsg[3]
-                    # msgheight = splitmsg[4]
-
-
-                   
-
-
-                
-
-
-            except Exception as e:
-                print("Process of reading imageclient failed %s" % str(e))
 
     def _read_ultra(self):
         ultrasonic = Ultrasonic()
-        values = [0,0,0] 
+        values = [] 
         while True:
             try:
-                for i in range(3):
-                    dist = ultrasonic.distance()
-                    values[i] = dist
-                    self.ultraDist.value = sum(values)/3
-                    time.sleep(1)
+                
+                dist = ultrasonic.distance()
+                values.append(dist)
+                #once a min of 5 values are in
+                if len(values) >= 5:
+                    self.ultraDist.value = statistics.median(values)
+                time.sleep(1)
             except KeyboardInterrupt:
                 ultrasonic.cleanup()
             except Exception as e:
@@ -305,11 +203,8 @@ class Multithreading:
 
                     print("Read from STM: %s" %msg)
                     if (msg == 'DONE'):
-                        # self.stmIsReady.value = 1
-                        self.msg_to_android_queue.put_nowait(msg+NEWLINE)
-                    #self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, msg+ NEWLINE)) #check if header is correct
-                    #self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, msg)) #check if header is correct
 
+                        self.msg_to_android_queue.put_nowait(msg+NEWLINE)
 
             except Exception as e:
                 print("Process of reading stm failed %s" % str(e))
@@ -332,13 +227,9 @@ class Multithreading:
                     if len(msg) <=0:
                         continue
 
-                    elif msg in (AndroidToSTM.ALL_MESSAGES or AndroidToRPi.CALIBRATE_SENSOR): #can change
-                        if msg == AndroidToRPi.CALIBRATE_SENSOR:
-                            self.message_queue.put_nowait(self._formatted_(STM_HEADER,RPiToSTM.CALIBRATE_SENSOR+NEWLINE)) 
-                            #check if header is correct
-
-                        else:
-                            self.message_queue.put_nowait(self._formatted_(
+                    elif msg in AndroidToSTM.ALL_MESSAGES: #can change
+        
+                        self.message_queue.put_nowait(self._formatted_(
                                 STM_HEADER, msg))
 
 
@@ -378,101 +269,6 @@ class Multithreading:
 
             except Exception as e:
                 print("Process of reading android failed %s" % str(e))
-    
-    """CHECK IF ALGO START FAST PATH ETC APPLIES"""
-
-    # def _read_algo(self):
-    #     while True:
-    #         try:
-    #             raw_msg = self.algo.read()
-                
-    #             if raw_msg is None:
-    #                 continue
-    #             message_list = raw_msg.split("|")
-    #             #print('Test msg: %s' %message_list)
-
-
-    #             for msg in message_list:
-    #                 # print(len(msg))
-    #                 # print(type(msg))
-    #                 # print(msg)
-    #                 print('inside read algo')
-
-    #                 print('the front of the msg is %s' %str(msg[0]))
-
-    #                 if len(msg) <=0:
-    #                     continue
-
-    #                 elif msg[0] == AndroidToSTM.ALL_MESSAGES:
-    #                     print('sending msg to STM %s' %msg)
-    #                     self.algo_to_stm_commands_queue.put_nowait(self._formatted_(STM_HEADER, msg))
-
-                    
-    #                 # elif msg[0] == AlgorithmToRPi.TAKE_PICTURE or msg[0] == AlgorithmToRPi.EXPLORATION_COMPLETE: #need to change this.
-    #                 #     print("in loop")
-
-    #                 #     self.algo_to_stm_commands_queue.put_nowait(self._formatted_("IMG",msg))
-                    
-
-
-
-
-    #                     #041021 change
-    #                     # if self.image_count.value >=5:
-    #                     #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,RPiToAlgorithm.DONE_IMG_REC)) #remove newline
-                        
-    #                     # else:
-
-    #                     #     msg = msg[2:-1]
-    #                     #     self.msg_to_android_queue.put_nowait(RPiToAndroid.STATUS_TAKING_PICTURE + NEWLINE) #change 300921
-
-    #                     #     image = self._takepic()
-    #                     #     print('Picture taken')
-                    
-    #                     #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, RPiToAlgorithm.DONE_TAKING_PICTURE)) #remove newline
-    #                     #     self.image_queue.put_nowait([image,msg])
-    #                     #     print('image queued ')
-                    
-    #                 # elif msg[0] == AlgorithmToAndroid.MDF_STRING:
-    #                 #     self.msg_to_android_queue.put_nowait(msg[1:]+NEWLINE)
-                    
-    #                 elif msg == 'DONE':
-    #                     time.sleep(1)
-    #                     self.msg_to_android_queue.put_nowait(msg+NEWLINE)
-
-    #                 else:
-    #                     self.algo_to_stm_commands_queue.put_nowait(self._formatted_(STM_HEADER, msg))  #TO-DO check
-                    
-    #                     #self._forward_msg_algo_to_android(msg) #testing this so added 290921
-    #                     #self.msg_to_android_queue.put_nowait(msg) #testing
-                    
-    #         except Exception as e:
-    #             print("Process of reading algo failed %s" % str(e))
-
-    #         """INCOMPLETE - TAKE PIC EXPLORATION MDF STRING?"""
-
-    def _forward_msg_algo_to_android(self, message):
-        messages_for_android = message.split("|")
-
-        for message_android in messages_for_android:
-
-            if len(message_android) <=0:
-                continue
-
-            elif message_android[0] == AlgorithmToAndroid.TURN_LEFT:
-                self.msg_to_android_queue.put_nowait(RPiToAndroid.TURN_LEFT) #removed newline
-            
-            elif message_android[0] == AlgorithmToAndroid.TURN_RIGHT:
-                self.msg_to_android_queue.put_nowait(RPiToAndroid.TURN_RIGHT) #remove newline
-            
-            elif message_android[0] == AlgorithmToAndroid.MOVE_FORWARD:
-                num_steps_forward = int(messages_for_android.decode()[1:])
-
-                print("Number of steps to move forward: %i" % num_steps_forward)
-                for steps in range(num_steps_forward):
-                    self.msg_to_android_queue.put_nowait(RPiToAndroid.MOVE_UP) #remove newline
-
-
             
     
     def _write_target_(self):
@@ -480,39 +276,6 @@ class Multithreading:
             target = None
             
             try:
-                # if self.stmIsReady.value:
-                #     if not self.algo_to_stm_commands_queue.empty():
-                #         message = self.algo_to_stm_commands_queue.get_nowait()
-                #         target, payload = message['target'],message['payload']
-                        
-                #         if payload[0] == AlgorithmToRPi.TAKE_PICTURE or payload[0] == AlgorithmToRPi.EXPLORATION_COMPLETE:
-
-                #             self.message_queue.put_nowait(self._formatted_('IMG',payload))
-
-
-                #             # image = self.imageclient.read()
-
-
-                #             # if self.image_count.value >=5:
-                #             #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER,RPiToAlgorithm.DONE_IMG_REC+ NEWLINE)) #remove newline
-                            
-                #             # else:
-                #             #     payload = payload[2:-1]
-                #             #     self.msg_to_android_queue.put_nowait(RPiToAndroid.STATUS_TAKING_PICTURE + NEWLINE) #change 300921
-                                
-                                
-
-                #             #     image = self._takepic() 
-                #             #     print('Picture taken')
-                        
-                #             #     self.message_queue.put_nowait(self._formatted_(ALGORITHM_HEADER, RPiToAlgorithm.DONE_TAKING_PICTURE+NEWLINE)) #remove newline
-                #             #     self.image_queue.put_nowait([image,payload])
-                #             #     print('image queued ')
-                #         else:
-                #             self.stm.write(payload)
-                #             self.stmIsReady.value = 0
-                #             print("Write to STM: %s" %payload)
-
 
 
 
@@ -520,13 +283,10 @@ class Multithreading:
                     message = self.message_queue.get_nowait()
                     target, payload = message['target'],message['payload']
 
-                    #print("debug payload %s" %payload)
-
                     if target == STM_HEADER:
                         self.stm.write(payload)
                         print("Write to STM: %s" %payload)
-                        #print('without stm connection')
-
+                
                     elif target == ALGORITHM_HEADER:
                         self.algo.write(payload)
                         print("Write to Algo: %s" %payload)

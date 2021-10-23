@@ -66,7 +66,7 @@ class STM():
         except Exception as e:
             print("STM closed connection failed: %s" % str(e))
 
-if __name__ == '__main__':
+if __name__ == '__main__': #for testing with RPI and STM alone
     stm = STM()
     stm.connect()
     count = 0
@@ -89,90 +89,3 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:
         print("Terminating the program now...")
-
-"""if __name__ == '__main__':
-    stm = STM()
-    stm.connect()
-    print("attempt connect")
-    while stm.ser.inWaiting() > 0:
-        stm.ser.read(1)
-    try:
-        print("attempting")
-        # while True:
-            # print(stm.read())
-
-        ####### Test Straight Line #################################
-        #! Tested on 3 Sep 2021 10.45am
-        #! Checklist required: Straight 80cm - 100cm (8 - 10 Grids)
-        GridUnit = 1.2 # speed 700 - 800
-
-        print("F")
-        stm.write("F")
-        time.sleep(3*GridUnit)
-        print("s")
-        stm.write("s")
-        time.sleep(3)
-
-
-        print("r")
-        stm.write("r")
-        time.sleep(3)
-        print("c")
-        stm.write("c")
-        time.sleep(3)
-
-        
-        print("l")
-        stm.write("l")
-        time.sleep(3)
-        print("c")
-        stm.write("c")
-        time.sleep(3)
-
-        print("F")
-        stm.write("F")
-        time.sleep(3*GridUnit)
-        print("s")
-        stm.write("s")
-        time.sleep(3)
-        #############################################################
-
-        #####################################################################
-        #! Checklist required: Turn 360deg -> for what speed and how long?
-        ####### Test Turn Right (Not tested) ################################
-        print("r")
-        stm.write("r")
-        time.sleep(3)
-
-        print("f")
-        stm.write("f")
-        time.sleep(3)
-
-        # Recalibrate?
-        print("s")
-        stm.write("s")
-        time.sleep(3)
-        print("c")
-        stm.write("c")
-        time.sleep(3)
-        #########################################
-
-        ####### Test Turn Left (Not tested) ######
-        print("l")
-        stm.write("l")
-        time.sleep(3)
-
-        print("f")
-        stm.write("f")
-        time.sleep(3)
-
-        # Recalibrate?
-        print("s")
-        stm.write("s")
-        time.sleep(3)
-        print("c")
-        stm.write("c")
-        time.sleep(3)
-        #########################################
-    except KeyboardInterrupt:
-        print("Terminating the program now...")"""

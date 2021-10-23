@@ -3,6 +3,7 @@
 import time
 from datetime import datetime
 from bluetooth import *
+import os as os
 
 
 from config import *
@@ -14,13 +15,7 @@ class Android():
 
         self.server_sock = None
         self.client_sock = None
-        # os.system("sudo systemctl daemon-reload")
-        # os.system("sudo systemctl restart bluetooth")
-        # os.system("sudo sdptool add --channel=6 SP")
-        # time.sleep(2)
-        # os.system("sudo chmod 777 /var/run/sdp")
-        # time.sleep(2)
-        # os.system("sudo systemctl start hciuart.service")
+        
         os.system("sudo hciconfig hci0 piscan")
         print("Finished BT initialising")
 
@@ -42,13 +37,8 @@ class Android():
             print("-----------------------------------------")
             print("Waiting connection from RFCOMM channel %d" % port)
 
-            #self.btsock, client_info = self.server_sock.accept()
             self.client_sock, client_info = self.server_sock.accept()
             secure = client_info[0]
-
-            #            if secure != "CC:46:4E:E1:D1:37":
-            #               print "Tablet MAC Address unrecgonized... Disconnecting..."
-            #              return 0
 
             print("Accepted connection from ", client_info)
             print("Connected to Android!")
@@ -58,7 +48,6 @@ class Android():
             try:
                 print("%s" % str(e))
                 self.client_sock.close()
-                #self.server_sock.close()
                 self.client_sock = None
             except:
                 print("Error")
@@ -67,16 +56,17 @@ class Android():
         return datetime.now().strftime("%d/%m/%Y %H:%M:%S.%f") + '\t'
 
     def disconnect(self):
+        #disconnect client_socket 
         try:
             if self.client_sock is not None:
                 self.client_sock.close()
-            #self.server_sock.close()
                 self.client_sock = None
             print("Android has been disconnected successfully")
         except Exception as e:
             print("Bluetooth disconnection exception: %s" % str(e))
         
     def disconnect_all(self):
+        #disconnect both client_socket and server socket
         try:
             if self.client_sock is not None:
                 self.client_sock.close()
@@ -95,7 +85,6 @@ class Android():
 
     def reconnect(self):
         connected = 0
-        # connected = self.connect("00001101-0000-1000-8000-00805F9B34FB")
         while connected == 0:
             print("Attempting reconnection...")
             # self.disconnect()
@@ -113,10 +102,8 @@ class Android():
                 msg = self.read(timeout=None)
             
 
-            self.client_sock.send(msg) #need encode? new android code got error 041021
-            #self.btsock.send(msg)
-            #if DEBUG:
-             #   print("%s | Write to Android: %s" % (self.current_time(), msg))
+            self.client_sock.send(msg) #did not encode here
+            
         except Exception as e:
             print("Bluetooth write exception: %s" % str(e))
             self.reconnect()
@@ -124,9 +111,6 @@ class Android():
 
     def read(self):
         try:
-            #if timeout != None:
-             #   print("\nSocket READ: Open for next %ss..." % str(timeout))
-            #else: print("\nSocket READ: Open")
 
             message = self.client_sock.recv(ANDROID_SOCKET_BUFFER_SIZE).decode('utf-8')
             print('From android:')
@@ -141,18 +125,9 @@ class Android():
             
 
 
-            #self.btsock.settimeout(timeout)
-            #msg = self.btsock.recv(1024).decode("utf-8")
-            
-            #if DEBUG:
-             #   print("%s | Read from Android: %s" % (self.current_time(), msg))
-              #  print("Socket READ: Closed.\n")
             return None
         except Exception as e:
-            #errStr = str(e)
-            #if errStr == "timed out":
-             #   print("Socket READ: Closed.\n")
-              #  return 
+           
             print("Bluetooth read exception: %s" % str(e))
             self.reconnect()
     

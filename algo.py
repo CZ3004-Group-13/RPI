@@ -8,6 +8,8 @@ from config import *
 
 class Algorithm:
     def __init__(self, host=WIFI_IP, port = WIFI_PORT):
+
+        #initialisation of ports
         self.host = host
         self.port = port
 
@@ -52,6 +54,8 @@ class Algorithm:
 
     
     def disconnect(self):
+        #disconnect client_socket
+
         try:
             if self.client_sock is not None:
                 self.client_sock.close()
@@ -63,6 +67,8 @@ class Algorithm:
             print('Algorithm PC disconnection failed: %s' % str(e))
         
     def disconnect_all(self):
+        #disconnect both client_socket and socket itself
+
         try:
             if self.client_sock is not None:
                 self.client_sock.close()
@@ -82,8 +88,7 @@ class Algorithm:
         try:
             print('To Algorithm: ')
             print(message.encode('utf-8'))
-            #self.client_sock.sendto(message.encode('utf-8'),self.address) #original no self.address..
-            self.client_sock.send(message.encode('utf-8')) #original no self.address..
+            self.client_sock.send(message.encode('utf-8')) #send encoded message
 
         except Exception as e:
             print('Algorithm PC write failed: %s' % str(e))
@@ -92,8 +97,10 @@ class Algorithm:
 
         
     def read(self):
+        #read function for algorithm
+
         try:
-            message =  self.client_sock.recv(ALGO_SOCKET_BUFFER_SIZE).decode()
+            message =  self.client_sock.recv(ALGO_SOCKET_BUFFER_SIZE).decode() #size is set to 1024
 
             if len(message) >0:
                 print('From Algo:')

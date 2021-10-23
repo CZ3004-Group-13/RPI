@@ -9,6 +9,8 @@ host = WIFI_IP
 port = 3055
 
 class ImageClient:
+
+    #connection to PC through socket server
     
 
     def __init__(self, host= WIFI_IP, port=3055):
@@ -50,7 +52,7 @@ class ImageClient:
                     trying = False
 
             except Exception as e:
-                    print('Error connecting with Algorithm %s' % str(e))
+                    print('Error connecting with ImageClient %s' % str(e))
 
                     if self.client_sock is not None:
                         self.client_sock.close()
@@ -59,7 +61,7 @@ class ImageClient:
                     
             if not trying:
                 break
-            print("Retrying Algorithm PC connection")
+            print("Retrying ImageClient connection")
 
 
     def disconnect(self):
@@ -70,9 +72,9 @@ class ImageClient:
 
     def write(self, msg):
         try:
-            print('To ImgRec %s' %msg.encode('utf-8'))
+            print('To ImgRec %s' %msg.encode('utf-8')) #debugging of message sent
             self.client_sock.send(msg.encode('utf-8'))
-            #self.client_sock.sendto(msg.encode('utf-8'), self.address)
+    
         except socket.error as e:
             if isinstance(e.args, tuple):
                 print("errno is %d" % e[0])
